@@ -1,4 +1,4 @@
-# StreamZ 🎥
+# NexStream 🎥
 
 A full-stack live streaming platform — think a lightweight Twitch clone. Stream live via RTMP (OBS, etc.), watch streams in-browser with live chat, follow channels, and manage your account settings.
 
