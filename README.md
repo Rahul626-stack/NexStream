@@ -59,19 +59,31 @@ When a creator starts streaming from OBS, the stream is sent to the RTMP server.
 
 ## Tech Stack
 
-### Frontend                    ### Backend                               
-- Node.js                      - React 19
-- Vite                         - Express 5
-- Zustand                      - Socket.IO
-- Axios                        - Mongoose
-- Socket.IO Client             - JWT
-- flv.js                       - bcryptjs
+### Frontend
+
+- React 19
+- Vite
+- Zustand
+- Axios
+- Socket.IO Client
+- flv.js
+
+### Backend
+
+- Node.js
+- Express 5
+- Socket.IO
+- Mongoose
+- JWT
+- bcryptjs
 
 ### Database
+
 - MongoDB Atlas
 - In-Memory MongoDB (development fallback)
 
 ### Streaming
+
 - Node Media Server
 - RTMP
 - HTTP-FLV
