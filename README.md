@@ -2,7 +2,7 @@
 
 NexStream is a full-stack live streaming platform inspired by Twitch and Kick. It allows creators to broadcast live using OBS or any RTMP-compatible software, while viewers can watch streams directly in the browser, chat in real time, follow their favorite creators, and manage their own channels.
 
-The project was built to explore the complete live-streaming workflow—from video ingestion and delivery to real-time communication, authentication, and channel management.
+The project was built to explore the complete live-streaming workflow from video ingestion and delivery to real-time communication, authentication, and channel management.
 
 ---
 
