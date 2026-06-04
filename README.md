@@ -1,200 +1,334 @@
-# NexStream 🎥
+# NexStream
 
-A full-stack live streaming platform — think a lightweight Twitch clone. Stream live via RTMP (OBS, etc.), watch streams in-browser with live chat, follow channels, and manage your account settings.
+NexStream is a full-stack live streaming platform inspired by Twitch and Kick. It allows creators to broadcast live using OBS or any RTMP-compatible software, while viewers can watch streams directly in the browser, chat in real time, follow their favorite creators, and manage their own channels.
+
+The project was built to explore the complete live-streaming workflow—from video ingestion and delivery to real-time communication, authentication, and channel management.
+
+---
+
+## Features
+
+- Live streaming through RTMP using OBS
+- Browser-based stream playback with HTTP-FLV
+- Real-time chat powered by Socket.IO
+- JWT-based authentication and authorization
+- Channel customization and account management
+- Follow/unfollow functionality
+- Live channel discovery
+- MongoDB-backed persistence
+- In-memory database fallback for development
 
 ---
 
 ## Architecture
 
-```
-live-streaming-app/
-├── client/          # React 19 + Vite frontend
-├── server/          # Node.js + Express 5 REST API + Socket.IO
-└── rtmp-server/     # Node Media Server (RTMP ingest + HTTP-FLV output)
-```
-
-### How it works
-
-```
+```text
 OBS / Streaming Software
         │
-        │  RTMP  (port 1935)
+        │ RTMP
         ▼
 ┌──────────────────┐
-│   rtmp-server    │  Node Media Server — ingests RTMP stream,
-│   (port 1935)    │  serves HTTP-FLV at /live/<streamKey>.flv
-│   (port 8000)    │
+│  Node Media      │
+│     Server       │
 └──────────────────┘
         │
-        │  HTTP-FLV  (port 8000)
-        ▼
-┌──────────────────┐          ┌──────────────────┐
-│     server       │◄────────►│   MongoDB Atlas  │
-│   (port 5002)    │  REST API│  (users, channels│
-│   + Socket.IO    │          │   messages)      │
-└──────────────────┘          └──────────────────┘
-        │
-        │  HTTP + WebSocket
+        │ HTTP-FLV
         ▼
 ┌──────────────────┐
-│     client       │  React app — browse channels, watch
-│   (port 3000)    │  live streams via flv.js, live chat,
-│                  │  auth, settings
+│   React Client   │
+└──────────────────┘
+
+        ▲
+        │ REST API + WebSockets
+        ▼
+
+┌──────────────────┐
+│ Express Server   │
+│  + Socket.IO     │
+└──────────────────┘
+        │
+        ▼
+┌──────────────────┐
+│ MongoDB Atlas    │
 └──────────────────┘
 ```
 
-### Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite, Zustand, Axios, Socket.IO client, flv.js |
-| Backend | Node.js, Express 5, Socket.IO, Mongoose, JWT, bcryptjs |
-| Database | MongoDB Atlas (or in-memory fallback for dev) |
-| Streaming | Node Media Server (RTMP → HTTP-FLV) |
+When a creator starts streaming from OBS, the stream is sent to the RTMP server. Node Media Server ingests the video feed and exposes it as an HTTP-FLV stream. The React frontend consumes the stream using `flv.js`, while Socket.IO powers real-time chat functionality. User accounts, channel information, messages, and follower relationships are stored in MongoDB.
 
 ---
 
-## Prerequisites
+## Tech Stack
 
-- **Node.js** v18+ (v22 recommended)
-- **npm** v9+
-- **OBS Studio** (or any RTMP-capable streaming software)
-- A **MongoDB Atlas** account (free tier works) — or use the built-in in-memory fallback
+### Frontend
+
+- React 19
+- Vite
+- Zustand
+- Axios
+- Socket.IO Client
+- flv.js
+
+### Backend
+
+- Node.js
+- Express 5
+- Socket.IO
+- Mongoose
+- JWT
+- bcryptjs
+
+### Database
+
+- MongoDB Atlas
+- In-Memory MongoDB (development fallback)
+
+### Streaming
+
+- Node Media Server
+- RTMP
+- HTTP-FLV
 
 ---
 
-## Setup & Run
+## Getting Started
 
-### 1. Clone and install dependencies
+### Prerequisites
+
+Before running the project, make sure you have:
+
+- Node.js v18+ (v22 recommended)
+- npm v9+
+- OBS Studio (or any RTMP-compatible streaming software)
+- MongoDB Atlas account (optional)
+
+---
+
+### Clone the Repository
 
 ```bash
-git clone <repo-url>
+git clone <repository-url>
 cd live-streaming-app
+```
 
-# Install all three services
+### Install Dependencies
+
+```bash
 cd rtmp-server && npm install && cd ..
 cd server && npm install && cd ..
 cd client && npm install && cd ..
 ```
 
-### 2. Configure the server environment
+---
 
-Create `server/.env` (copy from `server/.env.example`):
+## Environment Variables
+
+Create a `.env` file inside the `server` directory.
 
 ```env
 API_PORT=5002
-MONGO_URI="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?appName=StreamZ"
-Token_KEY="your-secret-jwt-key-here"
+MONGO_URI="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/"
+Token_KEY="your-secret-jwt-key"
 ```
 
-> **Note:** If `MONGO_URI` is omitted, the server falls back to an in-memory MongoDB instance (data is lost on restart).
+If no MongoDB connection string is provided, the application automatically falls back to an in-memory database for local development.
 
-### 3. Start all three services
+---
 
-Open **three separate terminals**:
+## Running the Application
 
-**Terminal 1 — RTMP Server**
+The application consists of three independent services.
+
+### 1. Start the Streaming Server
+
 ```bash
 cd rtmp-server
 npm start
-# Listening: RTMP :1935, HTTP :8000
 ```
 
-**Terminal 2 — API Server**
+Runs:
+
+- RTMP Server → Port 1935
+- HTTP-FLV Server → Port 8000
+
+---
+
+### 2. Start the Backend API
+
 ```bash
 cd server
 npm start
-# Listening: HTTP/WS :5002
 ```
 
-**Terminal 3 — Frontend**
+Runs:
+
+- Express API → Port 5002
+- Socket.IO Server
+
+---
+
+### 3. Start the Frontend
+
 ```bash
 cd client
 npm start
-# App running at http://localhost:3000
+```
+
+Application available at:
+
+```text
+http://localhost:3000
 ```
 
 ---
 
-## Using the App
+## Using NexStream
 
-### Register / Login
-- Navigate to `http://localhost:3000`
-- Click **Login** in the nav → switch to **Register** to create an account
-- Passwords are bcrypt-hashed; sessions use short-lived JWTs
+### Creating an Account
 
-### Browse Channels
-- Click **Browse** in the nav to see all active channels
-- Channels marked **🔴 LIVE** are currently streaming
+1. Open the application.
+2. Navigate to the Login page.
+3. Switch to Register.
+4. Create an account.
 
-### Go Live (OBS Setup)
-1. Open OBS → **Settings → Stream**
-2. **Service:** Custom
-3. **Server:** `rtmp://localhost/live`
-4. **Stream Key:** Your key from **My Account → Settings → Stream Key**
-5. Click **Start Streaming**
-
-Your channel will automatically appear as **🔴 LIVE** on the dashboard.
-
-### Watch a Stream
-- Click any channel card to open the channel view
-- Live streams play automatically via the built-in FLV player
-- Offline channels show a placeholder
-
-### Live Chat
-- Chat is available on every channel page (real-time via Socket.IO)
-- You must be logged in to send messages
-
-### Follow Channels
-- Open any channel → click the **Follow** button next to the streamer's name
-- Followed channels appear in the **sidebar** with their live status
-
-### Account Settings
-- **My Account** in the nav → update channel title, description, avatar URL
-- Change your password
-- Copy your stream key for OBS
+Passwords are securely hashed using bcrypt and authentication is handled with JWT tokens.
 
 ---
 
-## Seeding Dummy Data
+### Going Live
 
-A one-time seed script is available to populate the database with test users:
+1. Open OBS Studio.
+2. Navigate to **Settings → Stream**.
+3. Select **Custom Streaming Server**.
+4. Configure:
+
+```text
+Server: rtmp://localhost/live
+Stream Key: <your-stream-key>
+```
+
+5. Start streaming.
+
+Your channel will automatically appear as live inside NexStream.
+
+---
+
+### Watching Streams
+
+- Browse available channels from the dashboard.
+- Live channels are marked with a red LIVE indicator.
+- Click any channel to start watching.
+- Streams are delivered using HTTP-FLV for low-latency playback.
+
+---
+
+### Real-Time Chat
+
+Every channel includes a dedicated live chat powered by Socket.IO.
+
+Features include:
+
+- Instant message delivery
+- Persistent message storage
+- Authenticated user participation
+
+---
+
+### Following Streamers
+
+Users can follow creators directly from the channel page.
+
+Followed channels appear in the sidebar, making it easy to see which creators are currently live.
+
+---
+
+### Channel Management
+
+Users can customize:
+
+- Channel title
+- Channel description
+- Profile avatar
+- Password
+- Stream key
+
+All settings are available from the account dashboard.
+
+---
+
+## Demo Data
+
+To populate the database with sample users:
 
 ```bash
 cd server
-node seed.js   # Creates alice@example.com, bob@example.com, charlie@example.com
-               # Password for all: password123
+node seed.js
 ```
+
+Created Accounts:
+
+| Email | Password |
+|---------|---------|
+| alice@example.com | password123 |
+| bob@example.com | password123 |
+| charlie@example.com | password123 |
 
 ---
 
 ## Project Structure
 
+```text
+live-streaming-app/
+├── client/
+├── server/
+└── rtmp-server/
 ```
+
+### Backend
+
+```text
 server/
-├── index.js                  # Entry point — Express app + MongoDB connect
+├── index.js
 └── src/
     ├── controllers/
-    │   ├── auth/             # register, login
-    │   ├── channels/         # getChannels, getChannelDetails, followChannel
-    │   └── settings/         # channel settings, password change
-    ├── io/                   # Socket.IO server + chat events
-    ├── middlewares/          # JWT auth middleware
-    ├── models/               # Mongoose models: User, Channel, Message
-    └── routes/               # Express routers
-
-client/src/
-├── api/                      # Axios API client + all request functions
-├── Auth/                     # Login & Register pages
-├── DashBoard/
-│   ├── Nav/                  # Top navigation bar
-│   ├── Sidebar/              # Followed channels sidebar
-│   └── Content/
-│       ├── Channels/         # Channel grid (browse page)
-│       ├── ChannelView/      # Stream player + chat
-│       └── Settings/         # Account & channel settings
-├── shared/
-│   ├── hooks/                # Custom React hooks (useChannels, useUserDetails, etc.)
-│   └── components/           # Shared UI (LoadingSpinner)
-└── store/                    # Zustand global state
+    ├── io/
+    ├── middlewares/
+    ├── models/
+    └── routes/
 ```
+
+### Frontend
+
+```text
+client/src/
+├── api/
+├── Auth/
+├── DashBoard/
+├── shared/
+└── store/
+```
+
+---
+
+## Key Learnings
+
+Building NexStream provided hands-on experience with:
+
+- Real-time application development using Socket.IO
+- Authentication and authorization using JWT
+- Media streaming workflows using RTMP and HTTP-FLV
+- State management with Zustand
+- Designing scalable REST APIs with Express
+- MongoDB schema design and data modeling
+- Full-stack application architecture and deployment considerations
+
+---
+
+## Future Improvements
+
+- Adaptive bitrate streaming (HLS/DASH)
+- Stream recording and playback
+- Stream moderation tools
+- Creator analytics dashboard
+- Notifications for followed channels
+- Subscription and monetization features
+- Multi-server streaming infrastructure
