@@ -256,37 +256,49 @@ Created Accounts:
 
 ## Project Structure
 
+## Project Structure
+
 ```text
 live-streaming-app/
-├── client/
-├── server/
-└── rtmp-server/
+├── client/           # React frontend application
+├── server/           # Express API + Socket.IO server
+└── rtmp-server/      # Node Media Server for RTMP ingest and HTTP-FLV delivery
 ```
 
 ### Backend
 
 ```text
 server/
-├── index.js
+├── index.js                  # Application entry point
 └── src/
     ├── controllers/
-    ├── io/
-    ├── middlewares/
-    ├── models/
-    └── routes/
+    │   ├── auth/             # Authentication (register, login)
+    │   ├── channels/         # Channel browsing, details, follows
+    │   └── settings/         # User and channel settings
+    ├── io/                   # Socket.IO configuration and chat events
+    ├── middlewares/          # JWT authentication middleware
+    ├── models/               # Mongoose schemas and models
+    └── routes/               # API route definitions
 ```
 
 ### Frontend
 
 ```text
 client/src/
-├── api/
-├── Auth/
+├── api/                      # Axios instance and API requests
+├── Auth/                     # Login and registration pages
 ├── DashBoard/
+│   ├── Nav/                  # Top navigation bar
+│   ├── Sidebar/              # Followed channels list
+│   └── Content/
+│       ├── Channels/         # Browse available channels
+│       ├── ChannelView/      # Stream player and live chat
+│       └── Settings/         # Account and channel settings
 ├── shared/
-└── store/
+│   ├── hooks/                # Reusable custom React hooks
+│   └── components/           # Shared UI components
+└── store/                    # Zustand global state management
 ```
-
 ---
 
 ## Key Learnings
